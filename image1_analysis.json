@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "This screenshot displays the **Character.ai** web interface, a platform for AI-driven character interactions. Here’s a detailed breakdown:  \n\n\n### **1. Header & Navigation**  \n- **Top Bar**: A dark gray (near-black) header contains:  \n  - Left: The “Character.ai” logo (purple text).  \n  - Center: A search bar with placeholder text *“Search characters…”* (light gray text, dark gray background).  \n  - Right: Three elements: *“Create a Character”* (white text), a bell icon (notifications), and a user avatar (circular, small).  \n\n\n### **2. Promotional Banner**  \n- A large, purple-themed banner with a starry space background.  \n- Features a cartoon character (a bear in a blue jumpsuit holding a phone) and text: *“NEW: MOBILE APP download the app and get a free golden mop badge”* (white text).  \n- A right-facing arrow icon (for navigation) is at the bottom-right of the banner.  \n\n\n### **3. “My Chats” Section**  \n- A purple-tinted header with the text *“My Chats”* (white text).  \n- Below, **four chat cards** (purple backgrounds, rounded corners) display active conversations. Each card includes:  \n  - A lock icon (indicating private chats).  \n  - A title (e.g., *“Former Fucktoy at HS Reunion”*, *“YOUR VICTIM'S GF CAME TO CONFRONT …”*).  \n  - A preview of the chat (text snippets, images).  \n  - Metadata: Time since last message (*“about 2 hours ago”*), message count (*“1 messages”*).  \n  - A *“Continue”* button (purple, rounded) to resume the chat.  \n\n\n### **4. Filter & Sorting Tabs**  \n- Below “My Chats,” two rows of tabs:  \n  - **Top Row**: *“All”* (selected, purple background) and *“Limited Only”* (gray, unselected).  \n  - **Bottom Row**: *“Following”*, *“Favorites”*, *“Trending”* (selected, purple), *“Hidden Gems”* (BETA), *“Explore All”*.  \n- A secondary filter row: *“24h”* (selected, purple) and *“Weekly”* (gray).  \n\n\n### **5. Explanatory Text**  \n- At the bottom: *“Trending shows popular characters with the most chats, created in the last 24 hours.”* (white text, with a star icon).  \n\n\n### **Visual Style & Functionality**  \n- **Color Scheme**: Dominant dark gray (background), purple (accent for buttons, headers, cards), white (text).  \n- **Layout**: Clean, grid-based (chat cards in a row), with clear hierarchy (header → banner → “My Chats” → filters).  \n- **Functionality**:  \n  - Search for characters.  \n  - Create new characters.  \n  - Resume existing chats via “Continue” buttons.  \n  - Filter chats by recency (24h/Weekly) or category (All/Limited Only, Following/Favorites/Trending).  \n\n\nThis UI prioritizes easy access to chat history and discovery of trending characters, with a playful, space-themed aesthetic.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1773683932,
+  "id": "20260317015825f62abf7050184650",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260317015825f62abf7050184650",
+  "usage": {
+    "completion_tokens": 708,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1573,
+    "prompt_tokens_details": {
+      "cached_tokens": 6
+    },
+    "total_tokens": 2281
+  }
+}

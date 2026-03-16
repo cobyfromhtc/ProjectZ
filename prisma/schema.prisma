@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User Account
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  username      String   @unique
+  password      String   // Hashed password
+  avatarUrl     String?  // Account avatar (shows on profile only, NOT in chats)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  personas      Persona[]
+
+  // Friends system
+  sentRequests     FriendRequest[]  @relation("SentRequests")
+  receivedRequests FriendRequest[]  @relation("ReceivedRequests")
+  friends          Friendship[]     @relation("UserFriends")
+  friendsOf        Friendship[]     @relation("FriendOf")
+  
+  // Block system
+  blockedUsers     Block[]          @relation("UserBlocked")
+  blockedBy        Block[]          @relation("UserBlockedBy")
+  
+  // Follow system
+  following        Follow[]         @relation("UserFollowing")
+  followers        Follow[]         @relation("UserFollowers")
+  
+  // Storylines
+  ownedStorylines  Storyline[]      @relation("StorylineOwner")
+  storylineMembers StorylineMember[]
+}
+
+// Persona (each user can have unlimited)
+model Persona {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  avatarUrl   String?  // Shows in discovery grid AND chats
+  bio         String?
+  isActive    Boolean  @default(false)  // Only one can be active at a time
+  isOnline    Boolean  @default(false)  // Online status for discovery
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations for conversations
+  conversationsAsA Conversation[] @relation("ConversationA")
+  conversationsAsB Conversation[] @relation("ConversationB")
+  sentMessages     Message[]      @relation("MessageSender")
+}
+
+// Conversation between two personas
+model Conversation {
+  id            String   @id @default(cuid())
+  personaAId    String
+  personaBId    String
+  personaA      Persona  @relation("ConversationA", fields: [personaAId], references: [id], onDelete: Cascade)
+  personaB      Persona  @relation("ConversationB", fields: [personaBId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastMessageAt DateTime @default(now())
+
+  // Relations
+  messages      Message[]
+
+  @@unique([personaAId, personaBId])
+}
+
+// Message in a conversation
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         Persona      @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  content        String       @default("")
+  imageUrl       String?      // Optional image attachment
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+// Friend Request
+model FriendRequest {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  status      String   @default("pending") // pending, accepted, declined
+  sender      User     @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([senderId, receiverId])
+}
+
+// Friendship (after request accepted)
+model Friendship {
+  id          String   @id @default(cuid())
+  userId      String
+  friendId    String
+  isFavourite Boolean  @default(false) // Favourited friends appear at top
+  user        User     @relation("UserFriends", fields: [userId], references: [id], onDelete: Cascade)
+  friend      User     @relation("FriendOf", fields: [friendId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, friendId])
+}
+
+// Block system
+model Block {
+  id          String   @id @default(cuid())
+  blockerId   String   // User who blocked
+  blockedId   String   // User who is blocked
+  blocker     User     @relation("UserBlocked", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked     User     @relation("UserBlockedBy", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+}
+
+// Follow system (simpler than friends - just follow/unfollow)
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // User who follows
+  followingId String   // User being followed
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+// Storyline (like Discord Server) - Group spaces for shared stories
+model Storyline {
+  id          String   @id @default(cuid())
+  ownerId     String
+  owner       User     @relation("StorylineOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  iconUrl     String?  // Storyline icon/avatar
+  bannerUrl   String?  // Banner image
+  category    String   // Romance, Action, Horror, Fantasy, Slice of Life, etc.
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members     StorylineMember[]
+  channels    StorylineChannel[]
+
+  @@index([category])
+}
+
+// Storyline Membership
+model StorylineMember {
+  id          String   @id @default(cuid())
+  storylineId String
+  userId      String
+  storyline   Storyline @relation(fields: [storylineId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String    @default("member") // owner, admin, member
+  joinedAt    DateTime  @default(now())
+
+  @@unique([storylineId, userId])
+}
+
+// Storyline Channel (like Discord channels)
+model StorylineChannel {
+  id          String    @id @default(cuid())
+  storylineId String
+  storyline   Storyline @relation(fields: [storylineId], references: [id], onDelete: Cascade)
+  name        String
+  type        String    @default("text") // text, voice (for future)
+  position    Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  messages    StorylineMessage[]
+
+  @@unique([storylineId, name])
+}
+
+// Storyline Channel Message
+model StorylineMessage {
+  id          String          @id @default(cuid())
+  channelId   String
+  channel     StorylineChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  senderId    String          // Persona ID
+  content     String          @default("")
+  imageUrl    String?
+  createdAt   DateTime        @default(now())
+
+  @@index([channelId])
+}
